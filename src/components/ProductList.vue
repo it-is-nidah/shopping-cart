@@ -5,7 +5,10 @@
     <ul v-else>
       <li 
       v-for="product in products" 
-      :key="product">{{product.title}} - {{product.price}}
+      :key="product">
+
+      {{product.title}} - {{product.price}} - {{product.inventory}}
+
       <button @click="addProductToCart(product)">Add to Cart</button>
       </li>
     </ul>
@@ -28,6 +31,8 @@ export default {
 
   methods: {
     addProductToCart(product) {
+      //we're dispatching the action!
+      //the below code is how we access the store from the components.
       this.$store.dispatch('addProductToCart',product)
     }
   },

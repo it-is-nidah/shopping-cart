@@ -14,9 +14,24 @@ export default new Vuex.Store({
     getters: { //similar to computed properties
         availableProducts(state, getters) {
             return state.products.filter(product => product.inventory > 0)
+        },
+        cartProducts(state) {
+            return state.cart.map(cartItem => {
+                const product = state.products.find(product => product.id === cartItem.id)
+                return {
+                    title: product.title,
+                    price: product.price,
+                    quantity: cartItem.quantity
+                }
+            })
         }
     },
-    actions: { //similar to methods
+
+    /*  
+            ** Actions are resposible for firing Mutations
+           //similar to methods 
+    */
+    actions: {
         fetchProducts({ commit }) {
             return new Promise((resolve, reject) => {
                 shop.getProducts(products => {
@@ -25,21 +40,31 @@ export default new Vuex.Store({
                 })
             })
         },
+
+        /*
+            **context is first parameter of actions
+           ** does same thing as the store object
+        */
         addProductToCart(context, product) {
             if (product.inventory > 0) {
                 const cartItem = context.state.cart.find(item => item.id === product.id)
                 if (!cartItem) {
+                    //commit a mutation to add product to cart
                     context.commit('pushProductToCart', product.id)
                 }
             } else {
+                //commit a mutation to increment item in the cart when the item already exists in the cart
                 context.commit('incrementItemQuantity', cartItem)
             }
+            //commit a mutation that will decrement the products inventory in our shop
             context.commit('decrementProductInventory', product)
         }
     },
 
+    /***
+     *  */ //for setting and updating the state ***/
 
-    mutations: { //for setting and updating the state ***/simila
+    mutations: {
         setProducts(state, products) {
             //update products
             state.products = products
@@ -55,7 +80,7 @@ export default new Vuex.Store({
         incrementItemQuantity(state, cartItem) {
             cartItem.quantity++
         },
-        
+
         decrementProductInventory(state, product) {
             product.inventory--
         }
